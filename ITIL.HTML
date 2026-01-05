@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic ITIL Policy Portal</title>
+    <script src="https://unpkg.com/docx@7.1.0/build/index.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <style>
+        :root { --primary-blue: #1a2a6c; --accent-gold: #b2945e; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; padding: 20px; color: #333; }
+        .container { max-width: 1000px; margin: auto; background: white; padding: 40px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border-top: 8px solid var(--primary-blue); }
+        .setup-section { background: #f8f9fa; padding: 25px; border-radius: 10px; border: 1px solid #e0e0e0; margin-bottom: 30px; }
+        .setup-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        label { display: block; font-weight: 600; margin-bottom: 8px; color: var(--primary-blue); font-size: 13px; text-transform: uppercase; }
+        input { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+        .policy-card { background: white; border: 1px solid #ddd; padding: 20px; border-radius: 10px; transition: 0.3s; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .policy-card:hover { border-color: var(--accent-gold); transform: translateY(-5px); }
+        h2 { color: var(--primary-blue); border-bottom: 2px solid #eee; padding-bottom: 10px; margin-top: 0; }
+        h3 { color: var(--primary-blue); margin-top: 0; }
+        p { font-size: 14px; color: #666; line-height: 1.5; }
+        button { width: 100%; padding: 12px; background: var(--primary-blue); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; text-transform: uppercase; margin-top: 10px; transition: 0.2s; }
+        button:hover { background: #2a3a8c; box-shadow: 0 4px 12px rgba(26,42,108,0.3); }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="setup-section">
+        <h2>Brand Identity Setup</h2>
+        <div class="setup-grid">
+            <div>
+                <label>Brand Name (Header/Logo Text)</label>
+                <input type="text" id="brandName" placeholder="e.g. Emircom">
+            </div>
+            <div>
+                <label>Official Company Name</label>
+                <input type="text" id="companyName" placeholder="e.g. Saudi Emircom Solutions Ltd.">
+            </div>
+        </div>
+    </div>
+
+    <div class="grid">
+        <div class="policy-card">
+            <h3>Incident Management</h3>
+            <p>Framework for rapid service restoration and minimal business impact.</p>
+            <button onclick="generateITIL('Incident Management')">Download Policy</button>
+        </div>
+
+        <div class="policy-card">
+            <h3>Change Management</h3>
+            <p>Controlling the lifecycle of all changes to ensure stability.</p>
+            <button onclick="generateITIL('Change Management')">Download Policy</button>
+        </div>
+
+        <div class="policy-card">
+            <h3>Problem Management</h3>
+            <p>Identifying root causes and preventing recurring incidents.</p>
+            <button onclick="generateITIL('Problem Management')">Download Policy</button>
+        </div>
+
+        <div class="policy-card">
+            <h3>Service Level (SLM)</h3>
+            <p>Defining, documenting, and reaching service level targets (SLAs).</p>
+            <button onclick="generateITIL('Service Level Management')">Download Policy</button>
+        </div>
+
+        <div class="policy-card">
+            <h3>Information Security</h3>
+            <p>Standardizing data protection and security governance.</p>
+            <button onclick="generateITIL('Information Security Management')">Download Policy</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const { Document, Packer, Paragraph, HeadingLevel, AlignmentType, PageBreak, TableOfContents, TextRun } = docx;
+
+    const policyContent = {
+        "Incident Management": [
+            "1. Policy Objectives and Scope", "2. Incident Classification & Priority Matrix", "3. Roles: Service Desk & Technical Support", "4. Incident Logging Requirements", "5. Initial Diagnosis and Escalation Procedures", "6. Major Incident Management (MIM) Workflow", "7. Resolution and Recovery Standards", "8. User Satisfaction & Incident Closure", "9. Incident Monitoring and Reporting (KPIs)", "10. Post-Incident Review Requirements"
+        ],
+        "Change Management": [
+            "1. Purpose & Change Policy Scope", "2. Types of Change (Standard, Normal, Emergency)", "3. Change Request (CR) Submission Process", "4. Change Advisory Board (CAB) Governance", "5. Risk Impact Assessment Methodology", "6. Change Scheduling & Maintenance Windows", "7. Implementation & Testing Requirements", "8. Post-Implementation Review (PIR)", "9. Unauthorized Change Controls", "10. Back-out/Rollback Plan Compliance"
+        ],
+        "Problem Management": [
+            "1. Problem Management Strategy", "2. Reactive vs Proactive Identification", "3. Root Cause Analysis (RCA) Techniques", "4. Workaround Management (KEDB Entry)", "5. Problem Prioritization Standards", "6. Trend Analysis & Reporting", "7. Integration with Incident/Change Management", "8. Resolution Tracking and Closure", "9. Problem Management Roles (Owner, Technical)", "10. Major Problem Review (MPR) Guidelines"
+        ],
+        "Service Level Management": [
+            "1. SLM Policy & Business Alignment", "2. Service Level Agreement (SLA) Structures", "3. Operational Level Agreements (OLA)", "4. Underpinning Contracts (UC) Management", "5. Service Level Requirements (SLR) Gathering", "6. Monitoring Service Performance against Targets", "7. Service Level Reporting & Dashboards", "8. Service Improvement Plan (SIP) Process", "9. SLM Governance and Meeting Frequency", "10. Service Review and Feedback Loops"
+        ],
+        "Information Security Management": [
+            "1. Security Policy & ISMS Alignment", "2. Access Control & Identity Management", "3. Data Encryption and Privacy Standards", "4. Physical and Environmental Security", "5. Security Incident Reporting and Handling", "6. Third-Party/Vendor Security Compliance", "7. Asset Classification and Handling", "8. Vulnerability Management & Patching", "9. Business Continuity (DR) Alignment", "10. Security Training and Awareness"
+        ]
+    };
+
+    async function generateITIL(type) {
+        const bName = document.getElementById('brandName').value || "BRAND NAME";
+        const cName = document.getElementById('companyName').value || "COMPANY NAME";
+        
+        let content = [];
+
+        // COVER PAGE
+        content.push(new Paragraph({ text: "", spacing: { before: 2000 } }));
+        content.push(new Paragraph({ 
+            children: [new TextRun({ text: bName.toUpperCase(), bold: true, size: 48 })], 
+            alignment: AlignmentType.CENTER 
+        }));
+        content.push(new Paragraph({ text: "", spacing: { before: 400 } }));
+        content.push(new Paragraph({ 
+            text: `ITIL v3 Policy: ${type}`, 
+            heading: HeadingLevel.HEADING_1, 
+            alignment: AlignmentType.CENTER 
+        }));
+        content.push(new Paragraph({ text: "", spacing: { before: 3000 } }));
+        content.push(new Paragraph({ text: `Organization: ${cName}`, alignment: AlignmentType.CENTER }));
+        content.push(new Paragraph({ text: `Document Version: 1.0`, alignment: AlignmentType.CENTER }));
+        content.push(new Paragraph({ text: `Date: ${new Date().toLocaleDateString('en-GB')}`, alignment: AlignmentType.CENTER }));
+        content.push(new Paragraph({ children: [new PageBreak()] }));
+
+        // TABLE OF CONTENTS
+        content.push(new Paragraph({ text: "Table of Contents", heading: HeadingLevel.HEADING_1 }));
+        content.push(new TableOfContents("Contents", { hyperlink: true, headingStyleRange: "1-3" }));
+        content.push(new Paragraph({ text: "(Right-click and update field to refresh page numbers)", italic: true }));
+        content.push(new Paragraph({ children: [new PageBreak()] }));
+
+        // POLICY TOPICS
+        const topics = policyContent[type];
+        topics.forEach(topic => {
+            content.push(new Paragraph({ text: topic, heading: HeadingLevel.HEADING_2 }));
+            content.push(new Paragraph({ 
+                text: `This section establishes the formal requirements for ${topic} as mandated by the ${cName} Service Management Framework. This policy ensures compliance with ITIL v3 standards.`,
+                spacing: { after: 300 } 
+            }));
+        });
+
+        const doc = new Document({ 
+            features: { updateFields: true },
+            sections: [{ children: content }] 
+        });
+
+        Packer.toBlob(doc).then(blob => {
+            saveAs(blob, `${bName.replace(/\s+/g, '_')}_ITIL_${type.replace(/\s+/g, '_')}.docx`);
+        });
+    }
+</script>
+</body>
+</html>
